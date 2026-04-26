@@ -1,4 +1,4 @@
-# 🌍 GeoAttend — Geo-Fenced Attendance System
+# 🌍 MGIT Attendance Portal — Geo-Fenced Attendance System
 
 A fully-featured web-based attendance system that requires students to be:
 - **Physically inside a geo-fence** (validated server-side via Haversine formula)
