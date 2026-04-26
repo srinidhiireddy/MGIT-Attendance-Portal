@@ -1,120 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Student Dashboard — GeoAttend</title>
-  <meta name="description" content="Student portal for marking geo-fenced attendance with face verification"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/student.css"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Dashboard — MGIT Attendance Portal</title>
+  <meta name="description" content="Student portal for marking geo-fenced attendance with face verification" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/student.css" />
+
+  <!-- App Manifest for PWA installation -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6C63FF">
+  <link rel="apple-touch-icon"
+    href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4kTdfT_HFyatViJBHGBgBOUyM9iXSm47rgA&s">
 </head>
+
 <body class="student-body">
 
-<!-- ═══════════════════ HEADER ═══════════════════ -->
-<header class="student-header">
-  <div class="header-brand">
-    <div class="header-brand-icon">📍</div>
-    <span class="header-brand-name">GeoAttend</span>
-  </div>
-  <div class="header-right">
-    <span class="badge badge-success" id="faceRegistered">Checking…</span>
-    <div class="student-badge">
-      <div class="student-avatar" id="studentAvatar">ST</div>
-      <div>
-        <div class="student-name" id="studentNameDisplay">Student</div>
-        <div class="student-roll" id="studentRollDisplay">—</div>
-      </div>
+  <!-- ═══════════════════ HEADER ═══════════════════ -->
+  <header class="student-header">
+    <div class="header-brand">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4kTdfT_HFyatViJBHGBgBOUyM9iXSm47rgA&s" alt="MGIT Logo" style="width: 32px; height: 32px; filter: drop-shadow(0 0 6px rgba(108,99,255,0.4)); border-radius: 6px;">
+      <span class="header-brand-name">MGIT Attendance Portal</span>
     </div>
-    <button class="btn btn-outline btn-sm" onclick="openFaceRegModal()">📷 Register Face</button>
-    <button class="btn btn-outline btn-sm" onclick="logout()">🚪 Logout</button>
-  </div>
-</header>
-
-<!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
-<main class="student-main">
-
-  <!-- Welcome block -->
-  <div class="welcome-block">
-    <h2>👋 Hello, <span id="welcomeName">Student</span>!</h2>
-    <p>Mark your attendance for active sessions below. You must be within the geo-fence and pass face verification.</p>
-    <div class="geo-status checking" id="geoStatus">⏳ Acquiring location…</div>
-  </div>
-
-  <!-- Stats row -->
-  <div class="stats-row" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:24px">
-    <div class="stat-card primary">
-      <span class="stat-icon">🟢</span>
-      <div class="stat-value" id="activeSessionCount">—</div>
-      <div class="stat-label">Active Sessions</div>
-    </div>
-    <div class="stat-card success">
-      <span class="stat-icon">✅</span>
-      <div class="stat-value" id="myTotalCount">—</div>
-      <div class="stat-label">Total Marked</div>
-    </div>
-  </div>
-
-  <!-- Active sessions -->
-  <div class="section-heading">
-    <span class="live-dot"></span> Active Attendance Sessions
-    <button class="btn btn-outline btn-sm" onclick="loadActiveSessions()" style="margin-left:8px;font-size:0.78rem">🔄 Refresh</button>
-  </div>
-  <div class="sessions-grid" id="sessionsGrid">
-    <div class="no-sessions"><span class="emoji">⏳</span>Loading sessions…</div>
-  </div>
-
-  <!-- Attendance History -->
-  <div class="section-heading" style="margin-top:8px">📋 My Attendance History</div>
-  <div class="card history-card">
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th><th>Date & Time</th><th>Face Status</th><th>Location</th><th>Marked By</th>
-          </tr>
-        </thead>
-        <tbody id="myAttendanceBody">
-          <tr><td colspan="5" class="text-center text-muted" style="padding:24px">Loading…</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-</main>
-
-<!-- ═══════════════════ MARK ATTENDANCE MODAL ═══════════════════ -->
-<div class="modal-overlay" id="attendanceModal">
-  <div class="modal" style="max-width:560px">
-    <div class="modal-header">
-      <h3>📲 Mark Attendance</h3>
-      <button class="modal-close" onclick="closeAttendanceModal()">✕</button>
-    </div>
-    <p style="margin-bottom:16px;font-size:0.88rem;color:var(--text-secondary)">
-      Subject: <strong id="attendanceSubjectName">—</strong>
-    </p>
-
-    <!-- Steps -->
-    <div class="face-steps" style="margin-bottom:18px">
-      <div class="face-step active" id="stepGeo">
-        <span class="face-step-icon">⏳</span>
+    <div class="header-right">
+      <span class="badge badge-success" id="faceRegistered">Checking…</span>
+      <div class="student-badge">
+        <div class="student-avatar" id="studentAvatar">ST</div>
         <div>
-          <strong>Step 1 – Location Verified</strong>
-          <div class="text-sm text-muted">Confirming you are inside the geo-fence</div>
+          <div class="student-name" id="studentNameDisplay">Student</div>
+          <div class="student-roll" id="studentRollDisplay">—</div>
         </div>
       </div>
-      <div class="face-step" id="stepLive">
-        <span class="face-step-icon">⬜</span>
+      <button class="btn btn-outline btn-sm" onclick="openFaceRegModal()">📷 Register Face</button>
+      <button class="btn btn-outline btn-sm" onclick="logout()">🚪 Logout</button>
+    </div>
+  </header>
+
+  <!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
+  <main class="student-main">
+
+    <!-- Welcome block removed -->
+
+
+
+    <!-- Active sessions -->
+    <div class="card" style="margin-bottom: 24px;">
+      <div class="card-header">
+        <span class="card-title"><span class="live-dot"></span> Active Attendance Sessions</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Faculty</th>
+              <th>Time Window</th>
+              <th>Radius</th>
+              <th>Action / Status</th>
+            </tr>
+          </thead>
+          <tbody id="sessionsGrid">
+            <tr>
+              <td colspan="5" class="text-center text-muted" style="padding:24px"><span class="emoji">⏳</span>Loading
+                sessions…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Attendance History -->
+    <div class="section-heading" style="margin-top:8px">📋 My Attendance History</div>
+    <div class="card history-card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date & Time</th>
+              <th>Face Status</th>
+              <th>Marked By</th>
+            </tr>
+          </thead>
+          <tbody id="myAttendanceBody">
+            <tr>
+              <td colspan="5" class="text-center text-muted" style="padding:24px">Loading…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════ MARK ATTENDANCE MODAL ═══════════════════ -->
+  <div class="modal-overlay" id="attendanceModal">
+    <div class="modal" style="max-width:560px">
+      <div class="modal-header">
+        <h3>📲 Mark Attendance</h3>
+        <button class="modal-close" onclick="closeAttendanceModal()">✕</button>
+      </div>
+      <p style="margin-bottom:16px;font-size:0.88rem;color:var(--text-secondary)">
+        Subject: <strong id="attendanceSubjectName">—</strong>
+      </p>
+
+      <!-- Steps -->
+      <div class="face-step active" id="stepLive">
+        <span class="face-step-icon">⏳</span>
         <div>
-          <strong>Step 2 – Liveness Detection</strong>
+          <strong>Step 1 – Liveness Detection</strong>
           <div class="text-sm text-muted">Ensuring you are a real person, not a photo or screen</div>
         </div>
       </div>
       <div class="face-step" id="stepFace">
         <span class="face-step-icon">⬜</span>
         <div>
-          <strong>Step 3 – Face Identity Match</strong>
+          <strong>Step 2 – Face Identity Match</strong>
           <div class="text-sm text-muted">Matching your face with registered photo</div>
         </div>
       </div>
@@ -132,7 +138,7 @@
           </div>
         </div>
         <span class="face-status-chip" id="faceStatusChip"
-              style="background:rgba(245,158,11,0.15);color:var(--warning);border-color:var(--warning)">
+          style="background:rgba(245,158,11,0.15);color:var(--warning);border-color:var(--warning)">
           ⏳ Analysing
         </span>
       </div>
@@ -144,54 +150,55 @@
         📸 Capture
       </button>
     </div>
-    <button class="btn btn-primary w-full" id="submitAttendanceBtn"
-            onclick="submitAttendance()" style="display:none;margin-top:12px">
+    <button class="btn btn-primary w-full" id="submitAttendanceBtn" onclick="submitAttendance()"
+      style="display:none;margin-top:12px">
       ✅ Submit Attendance
     </button>
     <p class="text-muted text-sm text-center" style="margin-top:10px">
       ⚠️ Face must be clearly visible. Photos, screens or recordings will be rejected.
     </p>
   </div>
-</div>
-
-<!-- ═══════════════════ FACE REGISTRATION MODAL ═══════════════════ -->
-<div class="modal-overlay" id="faceRegModal">
-  <div class="modal" style="max-width:520px">
-    <div class="modal-header">
-      <h3>📷 Register Your Face</h3>
-      <button class="modal-close" onclick="closeFaceRegModal()">✕</button>
-    </div>
-    <p style="margin-bottom:14px;font-size:0.88rem;color:var(--text-secondary)">
-      Your face encoding is stored securely. This is required to mark attendance.
-      Look directly at the camera in a well-lit area.
-    </p>
-
-    <div class="video-wrap" style="margin-bottom:14px">
-      <video id="regVideo" autoplay muted playsinline></video>
-      <canvas id="regCanvas" style="display:none"></canvas>
-    </div>
-
-    <div class="face-step active" style="margin-bottom:16px">
-      <span class="face-step-icon">📸</span>
-      <span id="regLivenessMsg">Waiting for camera…</span>
-    </div>
-
-    <div style="display:flex;gap:10px">
-      <button class="capture-btn" id="regCaptureBtn" onclick="captureAndRegisterFace()" disabled>
-        📸 Capture &amp; Register
-      </button>
-      <button class="btn btn-outline" onclick="closeFaceRegModal()">Cancel</button>
-    </div>
-    <p class="text-muted text-sm" style="margin-top:10px">
-      ✅ Your image is processed securely on the server and only the numeric face encoding is stored — not the photo.
-    </p>
   </div>
-</div>
 
-<script src="js/mock-api.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/geo.js"></script>
-<script src="js/face-capture.js"></script>
-<script src="js/student.js"></script>
+  <!-- ═══════════════════ FACE REGISTRATION MODAL ═══════════════════ -->
+  <div class="modal-overlay" id="faceRegModal">
+    <div class="modal" style="max-width:520px">
+      <div class="modal-header">
+        <h3>📷 Register Your Face</h3>
+        <button class="modal-close" onclick="closeFaceRegModal()">✕</button>
+      </div>
+      <p style="margin-bottom:14px;font-size:0.88rem;color:var(--text-secondary)">
+        Your face encoding is stored securely. This is required to mark attendance.
+        Look directly at the camera in a well-lit area.
+      </p>
+
+      <div class="video-wrap" style="margin-bottom:14px">
+        <video id="regVideo" autoplay muted playsinline></video>
+        <canvas id="regCanvas" style="display:none"></canvas>
+      </div>
+
+      <div class="face-step active" style="margin-bottom:16px">
+        <span class="face-step-icon">📸</span>
+        <span id="regLivenessMsg">Waiting for camera…</span>
+      </div>
+
+      <div style="display:flex;gap:10px">
+        <button class="capture-btn" id="regCaptureBtn" onclick="captureAndRegisterFace()" disabled>
+          📸 Capture &amp; Register
+        </button>
+        <button class="btn btn-outline" onclick="closeFaceRegModal()">Cancel</button>
+      </div>
+      <p class="text-muted text-sm" style="margin-top:10px">
+        ✅ Your image is processed securely on the server and only the numeric face encoding is stored — not the photo.
+      </p>
+    </div>
+  </div>
+
+  <script src="js/mock-api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/geo.js"></script>
+  <script src="js/face-capture.js"></script>
+  <script src="js/student.js"></script>
 </body>
+
 </html>

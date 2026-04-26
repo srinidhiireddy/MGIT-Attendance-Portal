@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Faculty Dashboard — GeoAttend</title>
+  <title>Faculty Dashboard — MGIT Attendance Portal</title>
   <meta name="description" content="Faculty control panel for Geo-Fenced Attendance System"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -11,15 +11,20 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/faculty.css"/>
+  
+  <!-- App Manifest for PWA installation -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6C63FF">
+  <link rel="apple-touch-icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4kTdfT_HFyatViJBHGBgBOUyM9iXSm47rgA&s">
 </head>
 <body class="dash-body">
 
 <!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <div class="sidebar-logo-icon">📍</div>
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4kTdfT_HFyatViJBHGBgBOUyM9iXSm47rgA&s" alt="MGIT Logo" style="width: 32px; height: 32px; filter: drop-shadow(0 0 6px rgba(108,99,255,0.4)); border-radius: 6px;">
     <div>
-      <div class="sidebar-logo-text">GeoAttend</div>
+      <div class="sidebar-logo-text" style="font-size: 1.1rem">MGIT Attendance</div>
       <div class="sidebar-logo-sub">Faculty Portal</div>
     </div>
   </div>

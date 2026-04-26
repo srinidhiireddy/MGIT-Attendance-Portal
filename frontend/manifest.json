@@ -1,0 +1,21 @@
+{
+  "name": "MGIT Attendance Portal",
+  "short_name": "MGIT Attend",
+  "description": "Secure Geo-Fenced Face Verified Attendance System",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6C63FF",
+  "icons": [
+    {
+      "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4kTdfT_HFyatViJBHGBgBOUyM9iXSm47rgA&s",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4kTdfT_HFyatViJBHGBgBOUyM9iXSm47rgA&s",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

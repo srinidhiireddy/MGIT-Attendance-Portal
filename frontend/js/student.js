@@ -7,8 +7,6 @@ if (!requireStudent()) throw new Error('Blocked');
 
 // ── State ─────────────────────────────────────────────────────────────────────
 const student       = getUser();
-let currentPosition = null;
-let geoWatchId      = null;
 let faceCapture     = null;
 let pendingSessionId = null;
 let capturedImage   = null;
@@ -17,7 +15,6 @@ let refreshTimer    = null;
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   populateStudentInfo();
-  startGeoWatch();
   await loadActiveSessions();
   await loadMyAttendance();
   startAutoRefresh();
@@ -33,24 +30,7 @@ function populateStudentInfo() {
   document.getElementById('faceRegistered').className         += student.face_registered ? ' badge-success' : ' badge-warning';
 }
 
-// ── Geolocation Watch ─────────────────────────────────────────────────────────
-function startGeoWatch() {
-  const statusEl = document.getElementById('geoStatus');
-  statusEl.className = 'geo-status checking';
-  statusEl.innerHTML = '⏳ Getting location…';
-
-  geoWatchId = watchPosition(
-    pos => {
-      currentPosition = pos;
-      statusEl.className = 'geo-status ok';
-      statusEl.innerHTML = `✅ Location active &nbsp;(±${Math.round(pos.accuracy)}m accuracy)`;
-    },
-    err => {
-      statusEl.className = 'geo-status error';
-      statusEl.innerHTML = `❌ ${err.message}`;
-    }
-  );
-}
+// ── Geolocation Watch (Removed) ────────────────────────────────────────────────
 
 // ── Active Sessions ────────────────────────────────────────────────────────────
 async function loadActiveSessions() {
@@ -63,39 +43,34 @@ async function loadActiveSessions() {
     return;
   }
 
-  document.getElementById('activeSessionCount').textContent = data.sessions.filter(s => !s.already_marked).length;
+
 
   if (!data.sessions.length) {
     grid.innerHTML = `
-      <div class="no-sessions">
-        <span class="emoji">📭</span>
-        No active attendance sessions right now.<br>
-        <span style="font-size:0.8rem;margin-top:8px;display:block">Check back when your faculty starts a session.</span>
-      </div>`;
+      <tr>
+        <td colspan="5" class="text-center" style="padding:24px">
+          <span class="emoji">📭</span> No active attendance sessions right now.
+        </td>
+      </tr>`;
     return;
   }
 
   grid.innerHTML = data.sessions.map(s => `
-    <div class="session-card ${s.already_marked ? 'marked' : ''}">
-      <div class="session-card-top">
-        <div>
-          <div class="session-subject">${s.subject_name}</div>
-          <div class="session-code">${s.subject_code}</div>
-        </div>
-        <span class="badge badge-success" style="height:fit-content">● Live</span>
-      </div>
-      <div class="session-meta">
-        <div class="session-meta-row"><span class="emoji">👤</span> ${s.faculty_name}</div>
-        <div class="session-meta-row"><span class="emoji">🕐</span> Window: ${s.time_window || 'Any'} (Started ${fmtTime(s.start_time)})</div>
-        <div class="session-meta-row"><span class="emoji">📍</span> Radius: ${s.geo_fence_radius}m</div>
-      </div>
-      ${s.already_marked
-        ? `<div style="color:var(--success);font-size:0.85rem;font-weight:600;text-align:center">✅ You have marked attendance</div>`
-        : `<button class="mark-btn" onclick="initiateMarkAttendance(${s.id}, '${s.subject_name}')">
-             📲 Mark Attendance
-           </button>`
-      }
-    </div>
+    <tr class="${s.already_marked ? 'marked' : ''}" style="${s.already_marked ? 'opacity:0.7;background:#f9fafb;' : ''}">
+      <td>
+        <strong>${s.subject_name}</strong>
+        <div class="text-muted text-sm">${s.subject_code}</div>
+      </td>
+      <td>${s.faculty_name}</td>
+      <td>${s.time_window || 'Any'}</td>
+      <td>${s.geo_fence_radius}m</td>
+      <td>
+        ${s.already_marked
+          ? `<span class="badge badge-success">✅ Marked</span>`
+          : `<button class="btn btn-primary btn-sm" onclick="initiateMarkAttendance(${s.id}, '${s.subject_name}')">📲 Mark</button>`
+        }
+      </td>
+    </tr>
   `).join('');
 }
 
@@ -104,11 +79,11 @@ async function loadMyAttendance() {
   const { data } = await apiRequest('/student/history');
   if (!data.success) return;
 
-  document.getElementById('myTotalCount').textContent = data.total;
+
 
   const tbody = document.getElementById('myAttendanceBody');
   if (!data.records.length) {
-    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:24px">No attendance records yet</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted" style="padding:24px">No attendance records yet</td></tr>';
     return;
   }
   tbody.innerHTML = data.records.map((r, i) => `
@@ -116,7 +91,6 @@ async function loadMyAttendance() {
       <td>${i+1}</td>
       <td>${fmtDateTime(r.time_marked)}</td>
       <td>${statusBadge(r.face_verification_status)}</td>
-      <td>${r.student_lat ? `${(+r.student_lat).toFixed(4)}, ${(+r.student_lng).toFixed(4)}` : '—'}</td>
       <td>${statusBadge(r.marked_by)}</td>
     </tr>
   `).join('');
@@ -143,17 +117,10 @@ async function initiateMarkAttendance(sessionId, subjectName) {
     return;
   }
 
-  // Check location
-  if (!currentPosition) {
-    showToast('Location not available. Please allow location access.', 'error');
-    return;
-  }
-
   // Update modal heading
   document.getElementById('attendanceSubjectName').textContent = subjectName;
 
   // Reset steps
-  setStep('stepGeo',  'active');
   setStep('stepLive', 'pending');
   setStep('stepFace', 'pending');
   document.getElementById('captureBtn').disabled = true;
@@ -162,12 +129,8 @@ async function initiateMarkAttendance(sessionId, subjectName) {
 
   openModal('attendanceModal');
 
-  // Step 1: Geo verified locally (final check server-side)
-  await new Promise(r => setTimeout(r, 800));
-  setStep('stepGeo', 'done');
+  // Step 1: Start webcam and liveness
   setStep('stepLive', 'active');
-
-  // Step 2: Start webcam
   await startWebcam();
 }
 
@@ -212,7 +175,7 @@ function captureFrame() {
 }
 
 async function submitAttendance() {
-  if (!capturedImage || !pendingSessionId || !currentPosition) {
+  if (!capturedImage || !pendingSessionId) {
     showToast('Missing data. Please try again.', 'error');
     return;
   }
@@ -224,8 +187,6 @@ async function submitAttendance() {
   try {
     const payload = {
       session_id: pendingSessionId,
-      latitude:   currentPosition.latitude,
-      longitude:  currentPosition.longitude,
       face_image: capturedImage
     };
 
@@ -326,7 +287,6 @@ document.addEventListener('click', e => {
 
 // Cleanup on page leave
 window.addEventListener('beforeunload', () => {
-  if (geoWatchId != null) navigator.geolocation.clearWatch(geoWatchId);
   if (faceCapture) faceCapture.stop();
   if (regCapture)  regCapture.stop();
   if (refreshTimer) clearInterval(refreshTimer);

@@ -102,12 +102,7 @@
   box-shadow: 0 4px 14px rgba(108,99,255,0.4);
 }
 
-.role-label {
-  font-size: 1.3rem; font-weight: 700; margin-bottom: 22px;
-  background: linear-gradient(135deg, #fff 40%, var(--accent));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+
 
 /* Alert box */
 .alert-box {
@@ -157,10 +152,9 @@
   background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
   opacity: 0; transition: var(--transition);
 }
-.login-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(108,99,255,0.55); }
+.login-btn:hover { box-shadow: 0 10px 32px rgba(108,99,255,0.55); }
 .login-btn:hover::before { opacity: 1; }
-.login-btn:active { transform: translateY(0); }
-.login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* Demo creds */
 .demo-creds {

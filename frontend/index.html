@@ -12,6 +12,11 @@
     rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/login.css" />
+  
+  <!-- App Manifest for PWA installation -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6C63FF">
+  <link rel="apple-touch-icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4kTdfT_HFyatViJBHGBgBOUyM9iXSm47rgA&s">
   <style>
     /* ── Registration-specific styles ────────────────────────────── */
     .mode-toggle {
@@ -21,26 +26,27 @@
       margin-bottom: 1.2rem;
     }
     .mode-toggle button {
-      background: transparent;
-      border: 1.5px solid rgba(255,255,255,0.15);
-      color: rgba(255,255,255,0.6);
+      background: rgba(108, 99, 255, 0.08);
+      border: 1.5px solid rgba(108, 99, 255, 0.2);
+      color: var(--text-primary);
       padding: 0.45rem 1.3rem;
       border-radius: 8px;
       font-size: 0.85rem;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.25s ease;
       font-family: 'Inter', sans-serif;
     }
     .mode-toggle button.active {
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      border-color: #6366f1;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-color: transparent;
       color: #fff;
-      box-shadow: 0 2px 12px rgba(99,102,241,0.35);
+      box-shadow: 0 2px 12px rgba(108, 99, 255, 0.35);
     }
     .mode-toggle button:hover:not(.active) {
-      border-color: rgba(255,255,255,0.35);
-      color: rgba(255,255,255,0.85);
+      border-color: var(--primary);
+      background: rgba(108, 99, 255, 0.15);
+      color: var(--primary);
     }
 
     .reg-row {
@@ -109,8 +115,6 @@
         <div class="toggle-slider" id="toggleSlider"></div>
       </div>
 
-      <div class="role-label" id="roleLabel">Faculty Login</div>
-
       <!-- Alert Box -->
       <div class="alert-box" id="alertBox" style="display:none;"></div>
 
@@ -137,7 +141,6 @@
           <span class="btn-text">Login as Faculty</span>
           <span class="btn-spinner" style="display:none;">⏳</span>
         </button>
-        <div class="login-link">Don't have an account? <a onclick="switchMode('register')">Register here</a></div>
       </form>
 
       <!-- Student Login -->
@@ -161,7 +164,6 @@
           <span class="btn-text">Login as Student</span>
           <span class="btn-spinner" style="display:none;">⏳</span>
         </button>
-        <div class="login-link">Don't have an account? <a onclick="switchMode('register')">Register here</a></div>
       </form>
 
       <!-- ═══════ REGISTRATION FORMS ═══════ -->
@@ -194,7 +196,6 @@
           <span class="btn-text">Register as Faculty</span>
           <span class="btn-spinner" style="display:none;">⏳</span>
         </button>
-        <div class="login-link">Already have an account? <a onclick="switchMode('login')">Login here</a></div>
       </form>
 
       <!-- Student Register -->
@@ -250,7 +251,6 @@
           <span class="btn-text">Register as Student</span>
           <span class="btn-spinner" style="display:none;">⏳</span>
         </button>
-        <div class="login-link">Already have an account? <a onclick="switchMode('login')">Login here</a></div>
       </form>
 
     </div>
@@ -280,6 +280,7 @@
     })();
 
     let currentRole = 'faculty';
+
     let currentMode = 'login';    // 'login' or 'register'
 
     /* ── Switch between Login / Register ─────────────────────────── */
@@ -312,10 +313,6 @@
         : (currentMode === 'login' ? 'studentLoginForm' : 'studentRegForm');
 
       document.getElementById(formId).classList.remove('hidden');
-
-      const modeLabel = currentMode === 'login' ? 'Login' : 'Register';
-      const roleLabel = currentRole === 'faculty' ? 'Faculty' : 'Student';
-      document.getElementById('roleLabel').textContent = `${roleLabel} ${modeLabel}`;
     }
 
     function togglePwd(id, btn) {
