@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geo-Attendance System — Login</title>
+  <meta name="description"
+    content="Secure geo-fenced attendance system with real-time face verification for educational institutions." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/login.css" />
+  <style>
+    /* ── Registration-specific styles ────────────────────────────── */
+    .mode-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.2rem;
+    }
+    .mode-toggle button {
+      background: transparent;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.6);
+      padding: 0.45rem 1.3rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-family: 'Inter', sans-serif;
+    }
+    .mode-toggle button.active {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-color: #6366f1;
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(99,102,241,0.35);
+    }
+    .mode-toggle button:hover:not(.active) {
+      border-color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.85);
+    }
+
+    .reg-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+    }
+    .reg-row .form-group { margin-bottom: 0; }
+
+    .form-group small {
+      display: block;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.72rem;
+      margin-top: 2px;
+      padding-left: 2px;
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.5);
+    }
+    .login-link a {
+      color: #818cf8;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .login-link a:hover { text-decoration: underline; }
+  </style>
+</head>
+
+<body class="login-body">
+
+  <!-- Animated background -->
+  <div class="bg-gradient"></div>
+  <div class="bg-particles" id="particles"></div>
+
+  <div class="login-container">
+    <!-- Logo / Brand -->
+    <div class="brand">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4kTdfT_HFyatViJBHGBgBOUyM9iXSm47rgA&s"
+        alt="MGIT Logo" class="brand-icon">
+      <h1 class="brand-name">MGIT Attendance Portal</h1>
+      <p class="brand-tagline">Secure · Geo-Fenced · Face Verified</p>
+    </div>
+
+    <!-- Main Card -->
+    <div class="login-card" id="loginCard">
+
+      <!-- Login / Register mode toggle -->
+      <div class="mode-toggle" id="modeToggle">
+        <button class="active" id="loginModeBtn" onclick="switchMode('login')">🔑 Login</button>
+        <button id="registerModeBtn" onclick="switchMode('register')">📝 Register</button>
+      </div>
+
+      <!-- Role Toggle -->
+      <div class="role-toggle" id="roleToggle">
+        <button class="role-btn active" id="facultyBtn" onclick="switchRole('faculty')">
+          <span class="role-icon">🎓</span> Faculty
+        </button>
+        <button class="role-btn" id="studentBtn" onclick="switchRole('student')">
+          <span class="role-icon">👤</span> Student
+        </button>
+        <div class="toggle-slider" id="toggleSlider"></div>
+      </div>
+
+      <div class="role-label" id="roleLabel">Faculty Login</div>
+
+      <!-- Alert Box -->
+      <div class="alert-box" id="alertBox" style="display:none;"></div>
+
+      <!-- ═══════ LOGIN FORMS ═══════ -->
+
+      <!-- Faculty Login -->
+      <form id="facultyLoginForm" class="login-form" onsubmit="handleLogin(event, 'faculty')">
+        <div class="form-group">
+          <label for="facultyLoginEmail">College Email</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉️</span>
+            <input type="email" id="facultyLoginEmail" placeholder="name_cse@mgit.ac.in" autocomplete="email" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="facultyLoginPassword">Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="facultyLoginPassword" placeholder="Enter your password" required />
+            <button type="button" class="eye-btn" onclick="togglePwd('facultyLoginPassword', this)">👁</button>
+          </div>
+        </div>
+        <button type="submit" class="login-btn" id="facultyLoginBtn">
+          <span class="btn-text">Login as Faculty</span>
+          <span class="btn-spinner" style="display:none;">⏳</span>
+        </button>
+        <div class="login-link">Don't have an account? <a onclick="switchMode('register')">Register here</a></div>
+      </form>
+
+      <!-- Student Login -->
+      <form id="studentLoginForm" class="login-form hidden" onsubmit="handleLogin(event, 'student')">
+        <div class="form-group">
+          <label for="studentLoginEmail">College Email</label>
+          <div class="input-wrap">
+            <span class="input-icon">🪪</span>
+            <input type="email" id="studentLoginEmail" placeholder="name_cse2405@mgit.ac.in" autocomplete="email" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="studentLoginPassword">Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="studentLoginPassword" placeholder="Enter your password" required />
+            <button type="button" class="eye-btn" onclick="togglePwd('studentLoginPassword', this)">👁</button>
+          </div>
+        </div>
+        <button type="submit" class="login-btn" id="studentLoginBtn">
+          <span class="btn-text">Login as Student</span>
+          <span class="btn-spinner" style="display:none;">⏳</span>
+        </button>
+        <div class="login-link">Don't have an account? <a onclick="switchMode('register')">Register here</a></div>
+      </form>
+
+      <!-- ═══════ REGISTRATION FORMS ═══════ -->
+
+      <!-- Faculty Register -->
+      <form id="facultyRegForm" class="login-form hidden" onsubmit="handleRegister(event, 'faculty')">
+        <div class="form-group">
+          <label for="facultyRegName">Full Name</label>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input type="text" id="facultyRegName" placeholder="Dr. Priya Sharma" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="facultyRegEmail">College Email</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉️</span>
+            <input type="email" id="facultyRegEmail" placeholder="name_cse@mgit.ac.in" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="facultyRegPassword">Create Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="facultyRegPassword" placeholder="Min 6 characters" minlength="6" required />
+            <button type="button" class="eye-btn" onclick="togglePwd('facultyRegPassword', this)">👁</button>
+          </div>
+        </div>
+        <button type="submit" class="login-btn" id="facultyRegBtn">
+          <span class="btn-text">Register as Faculty</span>
+          <span class="btn-spinner" style="display:none;">⏳</span>
+        </button>
+        <div class="login-link">Already have an account? <a onclick="switchMode('login')">Login here</a></div>
+      </form>
+
+      <!-- Student Register -->
+      <form id="studentRegForm" class="login-form hidden" onsubmit="handleRegister(event, 'student')">
+        <div class="form-group">
+          <label for="studentRegName">Full Name</label>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input type="text" id="studentRegName" placeholder="Arjun Reddy" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="studentRegEmail">College Email</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉️</span>
+            <input type="email" id="studentRegEmail" placeholder="name_cse2405@mgit.ac.in" required />
+          </div>
+        </div>
+        <div class="reg-row">
+          <div class="form-group">
+            <label for="studentRegRoll">Roll Number</label>
+            <div class="input-wrap">
+              <span class="input-icon">🪪</span>
+              <input type="text" id="studentRegRoll" placeholder="21CS001" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="studentRegSection">Section</label>
+            <div class="input-wrap">
+              <span class="input-icon">📋</span>
+              <input type="text" id="studentRegSection" placeholder="A" />
+            </div>
+          </div>
+        </div>
+        <div class="reg-row">
+          <div class="form-group">
+            <label for="studentRegYear">Year</label>
+            <div class="input-wrap">
+              <span class="input-icon">📅</span>
+              <input type="number" id="studentRegYear" placeholder="3" min="1" max="4" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="studentRegPassword">Create Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="studentRegPassword" placeholder="Min 6 chars" minlength="6" required />
+              <button type="button" class="eye-btn" onclick="togglePwd('studentRegPassword', this)">👁</button>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="login-btn" id="studentRegBtn">
+          <span class="btn-text">Register as Student</span>
+          <span class="btn-spinner" style="display:none;">⏳</span>
+        </button>
+        <div class="login-link">Already have an account? <a onclick="switchMode('login')">Login here</a></div>
+      </form>
+
+    </div>
+
+    <p class="footer-note">© 2026 MGIT Attendance Portal — Secured with JWT + Face Recognition + Geo-Fencing</p>
+  </div>
+
+  <script src="js/mock-api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // ── Particle background ──────────────────────────────────────────────────
+    (function () {
+      const el = document.getElementById('particles');
+      for (let i = 0; i < 18; i++) {
+        const span = document.createElement('span');
+        span.className = 'particle';
+        span.style.cssText = `
+          left:${Math.random() * 100}%;
+          top:${Math.random() * 100}%;
+          width:${4 + Math.random() * 10}px;
+          height:${4 + Math.random() * 10}px;
+          animation-delay:${Math.random() * 6}s;
+          animation-duration:${6 + Math.random() * 8}s;
+        `;
+        el.appendChild(span);
+      }
+    })();
+
+    let currentRole = 'faculty';
+    let currentMode = 'login';    // 'login' or 'register'
+
+    /* ── Switch between Login / Register ─────────────────────────── */
+    function switchMode(mode) {
+      currentMode = mode;
+      document.getElementById('loginModeBtn').classList.toggle('active', mode === 'login');
+      document.getElementById('registerModeBtn').classList.toggle('active', mode === 'register');
+      updateFormVisibility();
+      hideAlert();
+    }
+
+    /* ── Switch between Faculty / Student ─────────────────────────── */
+    function switchRole(role) {
+      currentRole = role;
+      document.getElementById('facultyBtn').classList.toggle('active', role === 'faculty');
+      document.getElementById('studentBtn').classList.toggle('active', role === 'student');
+      document.getElementById('toggleSlider').style.transform =
+        role === 'faculty' ? 'translateX(0)' : 'translateX(100%)';
+      updateFormVisibility();
+      hideAlert();
+    }
+
+    /* ── Show only the correct form ──────────────────────────────── */
+    function updateFormVisibility() {
+      const allForms = ['facultyLoginForm','studentLoginForm','facultyRegForm','studentRegForm'];
+      allForms.forEach(id => document.getElementById(id).classList.add('hidden'));
+
+      const formId = currentRole === 'faculty'
+        ? (currentMode === 'login' ? 'facultyLoginForm' : 'facultyRegForm')
+        : (currentMode === 'login' ? 'studentLoginForm' : 'studentRegForm');
+
+      document.getElementById(formId).classList.remove('hidden');
+
+      const modeLabel = currentMode === 'login' ? 'Login' : 'Register';
+      const roleLabel = currentRole === 'faculty' ? 'Faculty' : 'Student';
+      document.getElementById('roleLabel').textContent = `${roleLabel} ${modeLabel}`;
+    }
+
+    function togglePwd(id, btn) {
+      const inp = document.getElementById(id);
+      const isText = inp.type === 'text';
+      inp.type = isText ? 'password' : 'text';
+      btn.textContent = isText ? '👁' : '🙈';
+    }
+
+    function showAlert(msg, type = 'error') {
+      const box = document.getElementById('alertBox');
+      box.textContent = msg;
+      box.className = `alert-box alert-${type}`;
+      box.style.display = 'block';
+    }
+    function hideAlert() {
+      document.getElementById('alertBox').style.display = 'none';
+    }
+
+    /* ── Set btn loading state ───────────────────────────────────── */
+    function setBtnLoading(btn, loading) {
+      btn.querySelector('.btn-text').style.display = loading ? 'none' : 'inline';
+      btn.querySelector('.btn-spinner').style.display = loading ? 'inline' : 'none';
+      btn.disabled = loading;
+    }
+
+    /* ── Handle Login ────────────────────────────────────────────── */
+    async function handleLogin(e, role) {
+      e.preventDefault();
+      hideAlert();
+
+      const email    = document.getElementById(`${role}LoginEmail`).value.trim();
+      const password = document.getElementById(`${role}LoginPassword`).value;
+      const btn      = document.getElementById(`${role}LoginBtn`);
+      
+      const facultyRegex = /^[^@\d]+@mgit\.ac\.in$/;
+      const studentRegex = /^[^@]*\d[^@]*@mgit\.ac\.in$/;
+
+      if (role === 'faculty' && !facultyRegex.test(email)) {
+        if (studentRegex.test(email)) {
+          showAlert('This looks like a student email. Faculty emails cannot contain numbers.');
+        } else {
+          showAlert('Invalid faculty email. Use format: name_dept@mgit.ac.in (No numbers allowed)');
+        }
+        return;
+      }
+      
+      if (role === 'student' && !studentRegex.test(email)) {
+        if (facultyRegex.test(email)) {
+          showAlert('This looks like a faculty email. Student emails must contain your unique numbers.');
+        } else {
+          showAlert('Invalid student email. Student emails must contain your unique numbers (e.g. arjun_cse2405@mgit.ac.in)');
+        }
+        return;
+      }
+
+      setBtnLoading(btn, true);
+
+      try {
+        const res = await loginUser(role, email, password);
+        if (res.success) {
+          showAlert(`Welcome, ${res.user.name}! Redirecting…`, 'success');
+          setTimeout(() => {
+            window.location.href = role === 'faculty'
+              ? 'faculty-dashboard.html'
+              : 'student-dashboard.html';
+          }, 900);
+        } else {
+          showAlert(res.message || 'Login failed. Check your credentials.');
+        }
+      } catch (err) {
+        showAlert('An error occurred during login. Please try again.');
+      } finally {
+        setBtnLoading(btn, false);
+      }
+    }
+
+    /* ── Handle Register ─────────────────────────────────────────── */
+    async function handleRegister(e, role) {
+      e.preventDefault();
+      hideAlert();
+
+      const btn = document.getElementById(`${role}RegBtn`);
+      setBtnLoading(btn, true);
+
+      try {
+        const facultyRegex = /^[^@\d]+@mgit\.ac\.in$/;
+        const studentRegex = /^[^@]*\d[^@]*@mgit\.ac\.in$/;
+
+        let payload;
+        if (role === 'faculty') {
+          payload = {
+            name:     document.getElementById('facultyRegName').value.trim(),
+            email:    document.getElementById('facultyRegEmail').value.trim(),
+            password: document.getElementById('facultyRegPassword').value
+          };
+          
+          if (!facultyRegex.test(payload.email)) {
+            if (studentRegex.test(payload.email)) {
+              showAlert('This looks like a student email. Faculty emails cannot contain numbers.');
+            } else {
+              showAlert('Invalid faculty email. Use format: name_dept@mgit.ac.in (No numbers allowed)');
+            }
+            setBtnLoading(btn, false);
+            return;
+          }
+        } else {
+          payload = {
+            name:        document.getElementById('studentRegName').value.trim(),
+            email:       document.getElementById('studentRegEmail').value.trim(),
+            roll_number: document.getElementById('studentRegRoll').value.trim(),
+            section:     document.getElementById('studentRegSection').value.trim() || null,
+            year:        parseInt(document.getElementById('studentRegYear').value) || null,
+            password:    document.getElementById('studentRegPassword').value
+          };
+          
+          if (!studentRegex.test(payload.email)) {
+            if (facultyRegex.test(payload.email)) {
+              showAlert('This looks like a faculty email. Student emails must contain your unique numbers.');
+            } else {
+              showAlert('Invalid student email. Student emails must contain your unique numbers (e.g. arjun_cse2405@mgit.ac.in)');
+            }
+            setBtnLoading(btn, false);
+            return;
+          }
+        }
+
+        const res = await registerUser(role, payload);
+        if (res.success) {
+          showAlert(`Account created! Welcome, ${res.user.name}! Redirecting…`, 'success');
+          setTimeout(() => {
+            window.location.href = role === 'faculty'
+              ? 'faculty-dashboard.html'
+              : 'student-dashboard.html';
+          }, 1200);
+        } else {
+          showAlert(res.message || 'Registration failed.');
+        }
+      } catch (err) {
+        showAlert('An error occurred during registration. Please try again.');
+      } finally {
+        setBtnLoading(btn, false);
+      }
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Faculty Dashboard — GeoAttend</title>
+  <meta name="description" content="Faculty control panel for Geo-Fenced Attendance System"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <!-- Leaflet for geo-fence map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/faculty.css"/>
+</head>
+<body class="dash-body">
+
+<!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">📍</div>
+    <div>
+      <div class="sidebar-logo-text">GeoAttend</div>
+      <div class="sidebar-logo-sub">Faculty Portal</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <button class="nav-item active" id="nav-overview" onclick="showSection('overview')">
+      <span class="nav-icon">🏠</span> Overview
+    </button>
+    <button class="nav-item" id="nav-live" onclick="showSection('live')" style="display:none">
+      <span class="nav-icon"><span class="live-dot"></span></span> Live Attendance
+    </button>
+
+    <div class="nav-section-label">Sessions</div>
+    <button class="nav-item" id="nav-start" onclick="showSection('start')">
+      <span class="nav-icon">▶</span> Start Session
+    </button>
+    <button class="nav-item" id="nav-reports" onclick="showSection('reports')">
+      <span class="nav-icon">📊</span> Reports
+    </button>
+
+    <div class="nav-section-label">Management</div>
+    <button class="nav-item" id="nav-subjects" onclick="showSection('subjects')">
+      <span class="nav-icon">📚</span> Subjects
+    </button>
+    <button class="nav-item" id="nav-students" onclick="showSection('students')">
+      <span class="nav-icon">👥</span> Students
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="faculty-chip">
+      <div class="faculty-avatar" id="facultyInitials">FA</div>
+      <div class="faculty-info">
+        <strong id="sidebarFacultyName">Faculty</strong>
+        <span id="sidebarFacultyDept">Department</span>
+      </div>
+    </div>
+    <button class="btn btn-outline w-full btn-sm" onclick="logout()">🚪 Logout</button>
+  </div>
+</aside>
+
+<!-- ═══════════════════════ MAIN ═══════════════════════════ -->
+<div class="main-content">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div>
+        <div class="topbar-title" id="facultyName">Faculty Dashboard</div>
+        <div class="topbar-subtitle" id="currentDateTime"></div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div id="activeSessionBanner" class="active-session-banner" style="display:none">
+        <div class="session-info">
+          <strong>🟢 Active: <span id="bannerSubject">—</span></strong>
+          <span>Started <span id="bannerStartTime">—</span> · Radius <span id="bannerRadius">—</span></span>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="stopSession()">⏹ Stop Session</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── OVERVIEW ─── -->
+  <section class="page-section active" id="sec-overview">
+    <div class="stats-row">
+      <div class="stat-card primary">
+        <span class="stat-icon">📅</span>
+        <div class="stat-value" id="statTotalSessions">—</div>
+        <div class="stat-label">Total Sessions</div>
+      </div>
+      <div class="stat-card success">
+        <span class="stat-icon">🟢</span>
+        <div class="stat-value" id="statActiveSessions">—</div>
+        <div class="stat-label">Active Now</div>
+      </div>
+      <div class="stat-card accent">
+        <span class="stat-icon">📚</span>
+        <div class="stat-value" id="statTotalSubjects">—</div>
+        <div class="stat-label">Subjects</div>
+      </div>
+      <div class="stat-card danger">
+        <span class="stat-icon">✅</span>
+        <div class="stat-value" id="statTotalPresent">—</div>
+        <div class="stat-label">Total Present</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📋 Recent Sessions</span>
+        <button class="btn btn-outline btn-sm" onclick="showSection('reports')">View All</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Subject</th><th>Date</th><th>Attendance</th><th>Status</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="recentSessionsBody">
+            <tr><td colspan="5" class="text-center text-muted" style="padding:24px">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── START SESSION ─── -->
+  <section class="page-section" id="sec-start">
+    <div class="session-panel">
+      <div class="session-panel-header">
+        <div>
+          <h2>▶ Start Attendance Session</h2>
+          <p style="margin-top:4px;font-size:0.85rem;color:var(--text-muted)">
+            Set the geo-fence boundary then start the session for your class.
+          </p>
+        </div>
+      </div>
+      <div class="session-panel-body">
+        <form onsubmit="startSession(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Subject</label>
+              <select class="form-control" id="sessionSubjectSelect" required>
+                <option value="">— Select Subject —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Time Window</label>
+              <select class="form-control" id="sessionTimeWindow" required>
+                <option value="">— Select Time —</option>
+                <option value="9:10-10:10">9:10 AM - 10:10 AM</option>
+                <option value="10:10-11:10">10:10 AM - 11:10 AM</option>
+                <option value="11:15-12:15">11:15 AM - 12:15 PM</option>
+                <option value="1:00-2:00">1:00 PM - 2:00 PM</option>
+                <option value="2:00-3:00">2:00 PM - 3:00 PM</option>
+                <option value="3:05-4:05">3:05 PM - 4:05 PM</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Geo-Fence Radius (metres)</label>
+              <div style="display:flex;align-items:center;gap:12px">
+                <input type="range" id="fenceRadius" min="10" max="30" value="30"
+                       style="flex:1;accent-color:var(--primary)"/>
+                <span id="radiusDisplay" style="width:60px;font-weight:700;color:var(--accent)">30 m</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap">
+            <button type="submit" class="btn btn-primary" id="startSessionBtn">▶ Start Attendance Session</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── LIVE ATTENDANCE ─── -->
+  <section class="page-section" id="sec-live">
+    <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat-card success">
+        <span class="stat-icon">✅</span>
+        <div class="stat-value" id="livePresentCount">0</div>
+        <div class="stat-label">Present</div>
+      </div>
+      <div class="stat-card danger">
+        <span class="stat-icon">❌</span>
+        <div class="stat-value" id="liveAbsentCount">0</div>
+        <div class="stat-label">Absent</div>
+      </div>
+      <div class="stat-card primary">
+        <span class="stat-icon">👥</span>
+        <div class="stat-value" id="liveTotalCount">0</div>
+        <div class="stat-label">Total</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="live-header">
+          <span class="live-dot"></span>
+          <span class="card-title">Live Attendance Feed</span>
+          <span class="refresh-badge">Auto-refresh every 6s</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="openModal('manualModal')">✎ Manual Add</button>
+          <button class="btn btn-danger btn-sm" onclick="stopSession()">⏹ Stop Session</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Student Name</th>
+              <th>Roll No.</th>
+              <th>Time Marked</th>
+              <th>Face Status</th>
+              <th>Location</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="liveTableBody">
+            <tr><td colspan="7" class="text-center text-muted" style="padding:24px">No active session</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── REPORTS ─── -->
+  <section class="page-section" id="sec-reports">
+    <div class="filter-bar">
+      <div class="form-group">
+        <label>Subject</label>
+        <select class="form-control" id="reportSubjectFilter" style="width:200px">
+          <option value="">All Subjects</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" class="form-control" id="reportDateFilter" style="width:180px"/>
+      </div>
+      <button class="btn btn-primary" onclick="loadReports()" style="align-self:flex-end">🔍 Filter</button>
+      <button class="btn btn-outline" onclick="document.getElementById('reportSubjectFilter').value='';document.getElementById('reportDateFilter').value='';loadReports()" style="align-self:flex-end">✕ Clear</button>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📊 Attendance Reports</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th><th>Subject</th><th>Start</th><th>End</th>
+              <th>Present</th><th>Status</th><th>Export</th>
+            </tr>
+          </thead>
+          <tbody id="reportsTableBody">
+            <tr><td colspan="7" class="text-center text-muted" style="padding:24px">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SUBJECTS ─── -->
+  <section class="page-section" id="sec-subjects">
+    <div class="card" style="margin-bottom:24px">
+      <div class="card-header">
+        <span class="card-title">➕ Add New Subject</span>
+      </div>
+      <form onsubmit="addSubject(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Subject Name</label>
+            <input type="text" class="form-control" id="subjectName" placeholder="Data Structures & Algorithms" required/>
+          </div>
+          <div class="form-group">
+            <label>Subject Code</label>
+            <input type="text" class="form-control" id="subjectCode" placeholder="CS301" required/>
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>Section</label>
+            <input type="text" class="form-control" id="subjectSection" placeholder="CS"/>
+          </div>
+          <div class="form-group">
+            <label>Year</label>
+            <select class="form-control" id="subjectYear">
+              <option value="1">Year 1</option>
+              <option value="2" selected>Year 2</option>
+              <option value="3">Year 3</option>
+              <option value="4">Year 4</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Semester</label>
+            <select class="form-control" id="subjectSemester">
+              <option value="1">Sem 1</option><option value="2">Sem 2</option>
+              <option value="3">Sem 3</option><option value="4" selected>Sem 4</option>
+              <option value="5">Sem 5</option><option value="6">Sem 6</option>
+              <option value="7">Sem 7</option><option value="8">Sem 8</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">➕ Add Subject</button>
+      </form>
+    </div>
+
+    <h3 style="margin-bottom:16px">Your Subjects</h3>
+    <div class="subjects-grid" id="subjectsGrid">
+      <div class="no-sessions" style="grid-column:1/-1">Loading…</div>
+    </div>
+  </section>
+
+  <!-- ─── STUDENTS ─── -->
+  <section class="page-section" id="sec-students">
+    <div class="filter-bar">
+      <div class="form-group">
+        <label>Section</label>
+        <input type="text" class="form-control" id="studentSectionFilter" placeholder="CS" style="width:120px"/>
+      </div>
+      <div class="form-group">
+        <label>Year</label>
+        <select class="form-control" id="studentYearFilter" style="width:120px">
+          <option value="">All</option>
+          <option value="1">Year 1</option>
+          <option value="2" selected>Year 2</option>
+          <option value="3">Year 3</option>
+          <option value="4">Year 4</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="loadStudentList()" style="align-self:flex-end">🔍 Search</button>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">👥 Student List</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Name</th><th>Roll No.</th><th>Email</th><th>Section</th><th>Year</th><th>Face</th></tr>
+          </thead>
+          <tbody id="studentsTableBody">
+            <tr><td colspan="7" class="text-center text-muted" style="padding:24px">Use filters above to load students</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /main-content -->
+
+<!-- ═══════════════════ MODALS ═══════════════════════════ -->
+
+<!-- Manual Attendance -->
+<div class="modal-overlay" id="manualModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✎ Add Manual Attendance</h3>
+      <button class="modal-close" onclick="closeModal('manualModal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Search Student</label>
+      <input type="text" class="form-control" id="manualStudentSearch"
+             placeholder="Name or roll number…" oninput="searchStudents()"/>
+      <div id="studentSearchResults" class="student-search-results"></div>
+    </div>
+    <div class="form-group">
+      <label>Notes (optional)</label>
+      <input type="text" class="form-control" id="manualNotes" placeholder="Reason for manual entry"/>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-primary w-full" onclick="addManualAttendance()">✅ Add Attendance</button>
+      <button class="btn btn-outline" onclick="closeModal('manualModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Record -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✎ Edit Attendance Record</h3>
+      <button class="modal-close" onclick="closeModal('editModal')">✕</button>
+    </div>
+    <p style="margin-bottom:16px">Student: <strong id="editStudentName">—</strong></p>
+    <div class="form-group">
+      <label>Face Verification Status</label>
+      <select class="form-control" id="editStatus">
+        <option value="verified">Verified</option>
+        <option value="manual">Manual</option>
+        <option value="failed">Failed</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <input type="text" class="form-control" id="editNotes" placeholder="Add a note…"/>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-primary w-full" onclick="saveEditRecord()">💾 Save</button>
+      <button class="btn btn-outline" onclick="closeModal('editModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/mock-api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/geo.js"></script>
+<script src="js/faculty.js"></script>
+<script>
+  // DateTime ticker
+  function updateClock() {
+    document.getElementById('currentDateTime').textContent =
+      new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
+  }
+  updateClock();
+  setInterval(updateClock, 60000);
+
+  // Load students when section shown
+  async function loadStudentList() {
+    const section = document.getElementById('studentSectionFilter').value;
+    const year    = document.getElementById('studentYearFilter').value;
+    let url = '/faculty/students?';
+    if (section) url += `section=${section}&`;
+    if (year)    url += `year=${year}&`;
+    const { data } = await apiRequest(url);
+    const tbody = document.getElementById('studentsTableBody');
+    if (!data.success || !data.students.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted" style="padding:24px">No students found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.students.map((s, i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td><strong>${s.name}</strong></td>
+        <td><code>${s.roll_number}</code></td>
+        <td>${s.email}</td>
+        <td>${s.section || '—'}</td>
+        <td>${s.year || '—'}</td>
+        <td>${s.face_registered ? '<span class="badge badge-success">✔ Yes</span>' : '<span class="badge badge-warning">✖ No</span>'}</td>
+      </tr>
+    `).join('');
+  }
+</script>
+</body>
+</html>

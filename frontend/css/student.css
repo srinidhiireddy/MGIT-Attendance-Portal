@@ -1,0 +1,168 @@
+/* ════════════════════════════════════════
+   Student Dashboard Styles
+   ════════════════════════════════════════ */
+
+.student-body { background: var(--bg); min-height: 100vh; }
+
+/* ── Header ── */
+.student-header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.9); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.header-brand { display: flex; align-items: center; gap: 10px; }
+.header-brand-icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+}
+.header-brand-name { font-weight: 800; font-size: 1rem; }
+.header-right { display: flex; align-items: center; gap: 14px; }
+.student-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 99px; padding: 6px 14px 6px 8px;
+}
+.student-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700;
+}
+.student-name { font-size: 0.85rem; font-weight: 600; }
+.student-roll { font-size: 0.72rem; color: var(--text-muted); }
+
+/* ── Main ── */
+.student-main { max-width: 900px; margin: 0 auto; padding: 32px 20px; }
+
+/* ── Welcome block ── */
+.welcome-block {
+  background: linear-gradient(135deg, rgba(108,99,255,0.15), rgba(62,207,207,0.08));
+  border: 1px solid rgba(108,99,255,0.2);
+  border-radius: var(--radius-xl); padding: 28px 32px;
+  margin-bottom: 28px; position: relative; overflow: hidden;
+}
+.welcome-block::after {
+  content: '📍'; position: absolute; right: 24px; top: 50%;
+  transform: translateY(-50%); font-size: 5rem; opacity: 0.08;
+}
+.welcome-block h2 { font-size: 1.5rem; margin-bottom: 6px; }
+.welcome-block p { color: var(--text-secondary); font-size: 0.9rem; }
+.geo-status {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 14px; border-radius: 99px;
+  font-size: 0.82rem; font-weight: 600; margin-top: 14px;
+  transition: var(--transition);
+}
+.geo-status.checking { background: rgba(245,158,11,0.15); color: var(--warning); }
+.geo-status.ok       { background: rgba(34,197,94,0.15);  color: var(--success); }
+.geo-status.error    { background: rgba(239,68,68,0.15);  color: var(--danger); }
+
+/* ── Section headings ── */
+.section-heading {
+  font-size: 1rem; font-weight: 700; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-heading::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── Active session cards ── */
+.sessions-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;
+  margin-bottom: 32px;
+}
+.session-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 22px;
+  display: flex; flex-direction: column; gap: 14px;
+  transition: var(--transition); position: relative; overflow: hidden;
+}
+.session-card:not(.marked):hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: rgba(108,99,255,0.3); }
+.session-card.marked { opacity: 0.6; }
+.session-card.marked::before {
+  content: '✅ Attendance Marked'; position: absolute; top: 12px; right: 12px;
+  background: rgba(34,197,94,0.15); color: var(--success);
+  padding: 3px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 600;
+}
+.session-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.session-subject { font-size: 1rem; font-weight: 700; }
+.session-code { font-size: 0.78rem; color: var(--accent); font-weight: 600; }
+.session-meta { display: flex; flex-direction: column; gap: 5px; }
+.session-meta-row { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--text-secondary); }
+.session-meta-row .emoji { width: 18px; }
+.mark-btn {
+  width: 100%; padding: 12px; border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border: none; color: #fff; font-family: inherit; font-weight: 700;
+  font-size: 0.95rem; cursor: pointer; transition: var(--transition);
+  box-shadow: 0 4px 14px rgba(108,99,255,0.35);
+}
+.mark-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(108,99,255,0.5); }
+.mark-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.no-sessions {
+  text-align: center; padding: 48px 20px;
+  background: var(--surface); border: 1px dashed var(--border);
+  border-radius: var(--radius-lg); color: var(--text-muted); font-size: 0.9rem;
+}
+.no-sessions .emoji { font-size: 3rem; display: block; margin-bottom: 12px; }
+
+/* ── Attendance history table ── */
+.history-card { margin-bottom: 28px; }
+
+/* ── Face capture modal ── */
+.face-modal-body { display: flex; flex-direction: column; gap: 18px; }
+.video-wrap {
+  position: relative; border-radius: var(--radius-md); overflow: hidden;
+  background: #000; aspect-ratio: 4/3;
+  border: 2px solid var(--border);
+}
+#webcamVideo { width: 100%; height: 100%; object-fit: cover; display: block; }
+#webcamCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.video-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  padding: 14px; display: flex; align-items: center; justify-content: space-between;
+}
+.liveness-bar-wrap { flex: 1; margin-right: 12px; }
+.liveness-label { font-size: 0.75rem; color: #ccc; margin-bottom: 4px; }
+.liveness-bar {
+  height: 5px; background: rgba(255,255,255,0.2); border-radius: 99px; overflow: hidden;
+}
+.liveness-fill { height: 100%; border-radius: 99px; width: 0%; transition: width 0.3s, background 0.3s; }
+.liveness-fill.good { background: var(--success); }
+.liveness-fill.mid  { background: var(--warning); }
+.liveness-fill.bad  { background: var(--danger); }
+
+.face-status-chip {
+  padding: 5px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 600;
+  border: 1px solid transparent; white-space: nowrap;
+}
+.face-steps { display: flex; flex-direction: column; gap: 8px; }
+.face-step {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--surface-2);
+  border-radius: var(--radius-sm); font-size: 0.88rem;
+}
+.face-step-icon { font-size: 1.1rem; width: 24px; text-align: center; }
+.face-step.done   { color: var(--success); }
+.face-step.active { color: var(--warning); border-left: 3px solid var(--warning); }
+.face-step.fail   { color: var(--danger);  border-left: 3px solid var(--danger); }
+.capture-btn-row { display: flex; gap: 10px; }
+.capture-btn {
+  flex: 1; padding: 12px; border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border: none; color: #fff; font-family: inherit; font-weight: 700;
+  font-size: 0.95rem; cursor: pointer; transition: var(--transition);
+}
+.capture-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+@media (max-width: 640px) {
+  .student-header { padding: 0 16px; }
+  .student-main { padding: 20px 12px; }
+  .welcome-block { padding: 20px; }
+  .sessions-grid { grid-template-columns: 1fr; }
+}
