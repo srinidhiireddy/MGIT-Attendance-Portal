@@ -116,8 +116,7 @@ window.mockApi = {
         db.sessions.push(newSess);
         saveDB(db);
         
-        // Start background student simulator
-        startStudentSimulator(newSess.id);
+        // Real app: Do not simulate students. Only registered students using the app can mark attendance.
 
         return { ok: true, status: 200, data: { success: true, session: newSess } };
       }
@@ -284,39 +283,3 @@ window.mockApi = {
   }
 };
 
-function startStudentSimulator(sessionId) {
-  let count = 0;
-  let interval = setInterval(() => {
-    let db = getDB();
-    const sess = db.sessions.find(s => s.id === sessionId);
-    if (!sess || sess.status !== 'active' || count > 5) {
-      clearInterval(interval);
-      return;
-    }
-    
-    const markedIds = db.attendance.filter(a => a.session_id === sessionId).map(a => a.student_id);
-    const unmapped = db.students.filter(s => !markedIds.includes(s.id));
-    if (unmapped.length === 0) {
-      clearInterval(interval);
-      return;
-    }
-    
-    const stud = unmapped[Math.floor(Math.random() * unmapped.length)];
-    
-    const newAtt = {
-      id: ++db.lastId.attendance,
-      session_id: sessionId,
-      student_id: stud.id,
-      student_name: stud.name,
-      roll_number: stud.roll_number,
-      time_marked: new Date().toISOString(),
-      face_verification_status: Math.random() > 0.2 ? 'verified' : 'failed',
-      student_lat: sess.geo_fence_lat + (Math.random() - 0.5) * 0.001,
-      student_lng: sess.geo_fence_lng + (Math.random() - 0.5) * 0.001
-    };
-    db.attendance.push(newAtt);
-    sess.present_count++;
-    saveDB(db);
-    count++;
-  }, 8000); 
-}
