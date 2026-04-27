@@ -221,3 +221,8 @@ tbody tr:hover { background: rgba(0,0,0,0.03); }
   background: var(--success); display: inline-block;
   animation: pulse 1.4s ease infinite; margin-right: 5px;
 }
+
+/* ── Mobile Overrides ── */
+@media (max-width: 768px) {
+  .hide-on-mobile { display: none !important; }
+}

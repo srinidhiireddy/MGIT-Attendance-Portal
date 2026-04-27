@@ -106,13 +106,13 @@
 
       <!-- Role Toggle -->
       <div class="role-toggle" id="roleToggle">
-        <button class="role-btn active" id="facultyBtn" onclick="switchRole('faculty')">
+        <button class="role-btn" id="facultyBtn" onclick="switchRole('faculty')">
           <span class="role-icon">🎓</span> Faculty
         </button>
-        <button class="role-btn" id="studentBtn" onclick="switchRole('student')">
+        <button class="role-btn active" id="studentBtn" onclick="switchRole('student')">
           <span class="role-icon">👤</span> Student
         </button>
-        <div class="toggle-slider" id="toggleSlider"></div>
+        <div class="toggle-slider" id="toggleSlider" style="transform: translateX(100%);"></div>
       </div>
 
       <!-- Alert Box -->
@@ -121,7 +121,7 @@
       <!-- ═══════ LOGIN FORMS ═══════ -->
 
       <!-- Faculty Login -->
-      <form id="facultyLoginForm" class="login-form" onsubmit="handleLogin(event, 'faculty')">
+      <form id="facultyLoginForm" class="login-form hidden" onsubmit="handleLogin(event, 'faculty')">
         <div class="form-group">
           <label for="facultyLoginEmail">College Email</label>
           <div class="input-wrap">
@@ -144,7 +144,7 @@
       </form>
 
       <!-- Student Login -->
-      <form id="studentLoginForm" class="login-form hidden" onsubmit="handleLogin(event, 'student')">
+      <form id="studentLoginForm" class="login-form" onsubmit="handleLogin(event, 'student')">
         <div class="form-group">
           <label for="studentLoginEmail">College Email</label>
           <div class="input-wrap">
@@ -258,7 +258,6 @@
     <p class="footer-note">© 2026 MGIT Attendance Portal — Secured with JWT + Face Recognition + Geo-Fencing</p>
   </div>
 
-  <script src="js/mock-api.js"></script>
   <script src="js/auth.js"></script>
   <script>
     // ── Particle background ──────────────────────────────────────────────────
@@ -279,8 +278,7 @@
       }
     })();
 
-    let currentRole = 'faculty';
-
+    let currentRole = 'student';
     let currentMode = 'login';    // 'login' or 'register'
 
     /* ── Switch between Login / Register ─────────────────────────── */
@@ -384,7 +382,7 @@
           showAlert(res.message || 'Login failed. Check your credentials.');
         }
       } catch (err) {
-        showAlert('An error occurred during login. Please try again.');
+        showAlert('An error occurred during login: ' + err.message);
       } finally {
         setBtnLoading(btn, false);
       }

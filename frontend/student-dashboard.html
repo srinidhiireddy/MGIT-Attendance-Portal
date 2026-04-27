@@ -21,23 +21,53 @@
 
 <body class="student-body">
 
+  <!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4kTdfT_HFyatViJBHGBgBOUyM9iXSm47rgA&s" alt="MGIT Logo" style="width: 32px; height: 32px; filter: drop-shadow(0 0 6px rgba(108,99,255,0.4)); border-radius: 6px;">
+      <div>
+        <div class="sidebar-logo-text" style="font-size: 1.1rem">MGIT Attendance</div>
+        <div class="sidebar-logo-sub">Student Portal</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <button class="nav-item active" id="nav-overview" onclick="location.reload()">
+        <span class="nav-icon">🏠</span> Overview
+      </button>
+
+      <div class="nav-section-label">Account</div>
+      <button class="nav-item" onclick="openFaceRegModal()">
+        <span class="nav-icon">📸</span> Register Face
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="student-badge" style="width: 100%; margin-bottom: 12px; background: var(--surface-2); border: 1px solid var(--border);">
+        <div class="student-avatar" id="studentAvatar" style="width: 32px; height: 32px;">ST</div>
+        <div style="overflow: hidden;">
+          <div class="student-name" id="studentNameDisplay" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Student</div>
+          <div class="student-roll" id="studentRollDisplay" style="font-size: 0.65rem;">—</div>
+        </div>
+      </div>
+      <button class="btn btn-outline w-full btn-sm" onclick="logout()">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════ MAIN ═══════════════════════════ -->
+  <div class="modal-overlay" id="sidebarOverlay" onclick="toggleSidebar()" style="z-index: 90;"></div>
+  <div class="main-content">
+
   <!-- ═══════════════════ HEADER ═══════════════════ -->
   <header class="student-header">
     <div class="header-brand">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()" style="background:none; border:none; font-size:1.5rem; margin-right:10px; cursor:pointer;">☰</button>
       <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4kTdfT_HFyatViJBHGBgBOUyM9iXSm47rgA&s" alt="MGIT Logo" style="width: 32px; height: 32px; filter: drop-shadow(0 0 6px rgba(108,99,255,0.4)); border-radius: 6px;">
       <span class="header-brand-name">MGIT Attendance Portal</span>
     </div>
     <div class="header-right">
       <span class="badge badge-success" id="faceRegistered">Checking…</span>
-      <div class="student-badge">
-        <div class="student-avatar" id="studentAvatar">ST</div>
-        <div>
-          <div class="student-name" id="studentNameDisplay">Student</div>
-          <div class="student-roll" id="studentRollDisplay">—</div>
-        </div>
-      </div>
-      <button class="btn btn-outline btn-sm" onclick="openFaceRegModal()">📷 Register Face</button>
-      <button class="btn btn-outline btn-sm" onclick="logout()">🚪 Logout</button>
     </div>
   </header>
 
@@ -58,9 +88,9 @@
           <thead>
             <tr>
               <th>Subject</th>
-              <th>Faculty</th>
-              <th>Time Window</th>
-              <th>Radius</th>
+              <th class="hide-on-mobile">Faculty</th>
+              <th class="hide-on-mobile">Time Window</th>
+              <th class="hide-on-mobile">Radius</th>
               <th>Action / Status</th>
             </tr>
           </thead>
@@ -84,7 +114,7 @@
               <th>#</th>
               <th>Date & Time</th>
               <th>Face Status</th>
-              <th>Marked By</th>
+              <th class="hide-on-mobile">Marked By</th>
             </tr>
           </thead>
           <tbody id="myAttendanceBody">
@@ -97,6 +127,7 @@
     </div>
 
   </main>
+</div>
 
   <!-- ═══════════════════ MARK ATTENDANCE MODAL ═══════════════════ -->
   <div class="modal-overlay" id="attendanceModal">
@@ -194,7 +225,6 @@
     </div>
   </div>
 
-  <script src="js/mock-api.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/geo.js"></script>
   <script src="js/face-capture.js"></script>

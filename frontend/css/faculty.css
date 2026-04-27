@@ -80,6 +80,10 @@
   padding: 14px 28px; display: flex;
   align-items: center; justify-content: space-between;
 }
+.mobile-menu-btn {
+  display: none; background: none; border: none; font-size: 1.5rem;
+  cursor: pointer; padding: 0 14px 0 0; color: var(--text-primary);
+}
 .topbar-left { display: flex; align-items: center; gap: 12px; }
 .topbar-title { font-size: 1.1rem; font-weight: 700; }
 .topbar-subtitle { font-size: 0.8rem; color: var(--text-muted); }
@@ -207,7 +211,9 @@
 .filter-bar .form-group { margin-bottom: 0; }
 
 @media (max-width: 768px) {
-  .sidebar { transform: translateX(-240px); }
+  .sidebar { transform: translateX(-240px); z-index: 1000; box-shadow: var(--shadow-lg); }
+  .sidebar.mobile-open { transform: translateX(0); }
   .main-content { margin-left: 0; }
   .form-row, .form-row-3 { grid-template-columns: 1fr; }
+  .mobile-menu-btn { display: block !important; }
 }

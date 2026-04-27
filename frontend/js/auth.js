@@ -3,7 +3,7 @@
    (Real backend version — calls Express API)
    ═══════════════════════════════════════════ */
 
-const API_BASE = 'http://127.0.0.1:5000/api';
+const API_BASE = (window.location.origin.includes('file://') ? 'http://127.0.0.1:5000' : window.location.origin) + '/api';
 
 // ── Token storage ─────────────────────────────────────────────────────────────
 function saveSession(token, role, user) {
@@ -28,10 +28,7 @@ async function apiRequest(path, options = {}) {
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  // Use mockApi directly to bypass backend
-  if (window.mockApi) {
-    return await window.mockApi.request(path, { ...options, headers: { ...headers, ...(options.headers || {}) } });
-  }
+  // Use real backend
 
   const url = `${API_BASE}${path}`;
   const res = await fetch(url, {
@@ -45,48 +42,42 @@ async function apiRequest(path, options = {}) {
 
 // ── Login ─────────────────────────────────────────────────────────────────────
 async function loginUser(role, email, password) {
-  if (window.mockApi) {
-    const res = await window.mockApi.request('/auth/login', {
+  // Use real backend
+  console.log(`[Auth] Attempting login for ${role}: ${email}`);
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, role })
     });
-    const data = res.data;
+
+    const contentType = res.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await res.text();
+      console.error('[Auth] Non-JSON response received:', text);
+      throw new Error(`Server returned non-JSON response (Status ${res.status}). See console for details.`);
+    }
+
+    const data = await res.json();
+    console.log('[Auth] Login response:', data);
+
     if (data.success) {
       saveSession(data.token, data.role, data.user);
     }
+
     return data;
+  } catch (err) {
+    console.error('[Auth] Login exception:', err);
+    throw err;
   }
-
-  const res = await fetch(`${API_BASE}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password, role })
-  });
-
-  const data = await res.json();
-
-  if (data.success) {
-    saveSession(data.token, data.role, data.user);
-  }
-
-  return data;
 }
 
 // ── Register ──────────────────────────────────────────────────────────────────
 async function registerUser(role, payload) {
   const endpoint = role === 'faculty' ? `/auth/register/faculty` : `/auth/register/student`;
 
-  if (window.mockApi) {
-    const res = await window.mockApi.request(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
-    const data = res.data;
-    if (data.success) {
-      saveSession(data.token, data.role, data.user);
-    }
-    return data;
-  }
+  // Use real backend
 
   const res = await fetch(`${API_BASE}${endpoint}`, {
     method: 'POST',

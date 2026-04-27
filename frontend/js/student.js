@@ -25,7 +25,6 @@ function populateStudentInfo() {
   document.getElementById('studentNameDisplay').textContent    = student.name;
   document.getElementById('studentRollDisplay').textContent    = student.roll_number;
   document.getElementById('studentAvatar').textContent         = initials;
-  document.getElementById('welcomeName').textContent           = student.name.split(' ')[0];
   document.getElementById('faceRegistered').textContent        = student.face_registered ? '✅ Registered' : '⚠️ Not Registered';
   document.getElementById('faceRegistered').className         += student.face_registered ? ' badge-success' : ' badge-warning';
 }
@@ -61,9 +60,9 @@ async function loadActiveSessions() {
         <strong>${s.subject_name}</strong>
         <div class="text-muted text-sm">${s.subject_code}</div>
       </td>
-      <td>${s.faculty_name}</td>
-      <td>${s.time_window || 'Any'}</td>
-      <td>${s.geo_fence_radius}m</td>
+      <td class="hide-on-mobile">${s.faculty_name}</td>
+      <td class="hide-on-mobile">${s.time_window || 'Any'}</td>
+      <td class="hide-on-mobile">${s.geo_fence_radius}m</td>
       <td>
         ${s.already_marked
           ? `<span class="badge badge-success">✅ Marked</span>`
@@ -91,7 +90,7 @@ async function loadMyAttendance() {
       <td>${i+1}</td>
       <td>${fmtDateTime(r.time_marked)}</td>
       <td>${statusBadge(r.face_verification_status)}</td>
-      <td>${statusBadge(r.marked_by)}</td>
+      <td class="hide-on-mobile">${statusBadge(r.marked_by)}</td>
     </tr>
   `).join('');
 }
@@ -101,7 +100,7 @@ function startAutoRefresh() {
   refreshTimer = setInterval(async () => {
     await loadActiveSessions();
     await loadMyAttendance();
-  }, 20000);
+  }, 5000);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -275,6 +274,13 @@ function closeFaceRegModal() {
 // ── Modals ─────────────────────────────────────────────────────────────────────
 function openModal(id)  { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar) sidebar.classList.toggle('mobile-open');
+  if (overlay) overlay.classList.toggle('active');
+}
 
 document.addEventListener('click', e => {
   if (e.target.classList.contains('modal-overlay')) {

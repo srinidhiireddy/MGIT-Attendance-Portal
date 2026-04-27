@@ -240,7 +240,19 @@ def start_session():
         (request.user['id'], d['subject_id'], now, now,
          d.get('geo_fence_lat'), d.get('geo_fence_lng'), d.get('geo_fence_radius', 100)))
     db.commit()
-    total = db.execute('SELECT COUNT(*) AS c FROM students').fetchone()['c']
+    
+    # Count total students in this subject's section/year
+    q_count = 'SELECT COUNT(*) AS c FROM students WHERE 1=1'
+    p_count = []
+    if sub.get('section'):
+        q_count += ' AND section=?'; p_count.append(sub['section'])
+    if sub.get('year'):
+        q_count += ' AND year=?'; p_count.append(sub['year'])
+    
+    total = db.execute(q_count, p_count).fetchone()['c']
+    if total == 0: # Fallback if no students in section
+        total = db.execute('SELECT COUNT(*) AS c FROM students').fetchone()['c']
+
     sess = {'id':cur.lastrowid,'subject_id':d['subject_id'],
             'subject_name':sub['subject_name'],'subject_code':sub['subject_code'],
             'geo_fence_lat':d.get('geo_fence_lat'),'geo_fence_lng':d.get('geo_fence_lng'),
@@ -400,19 +412,49 @@ def delete_attendance(aid):
 @token_required
 @require_role('student')
 def student_sessions():
+    uid = request.user['id']
     db = get_db()
-    rows = db.execute(
-        "SELECT s.*, sub.subject_name, sub.subject_code, f.name AS faculty_name "
-        "FROM attendance_sessions s "
-        "JOIN subjects sub ON sub.id=s.subject_id "
-        "JOIN faculty f ON f.id=s.faculty_id "
-        "WHERE s.status='active' ORDER BY s.start_time DESC").fetchall()
+    
+    # Get student's section and year
+    user = db.execute('SELECT section, year FROM students WHERE id=?', (uid,)).fetchone()
+    section = user['section'] if user else None
+    year = user['year'] if user else None
+
+    # Get active sessions that match student's section and year (if specified)
+    # Also check if student has already marked attendance
+    q = """
+        SELECT s.*, sub.subject_name, sub.subject_code, f.name AS faculty_name,
+               (SELECT 1 FROM attendance_records ar WHERE ar.session_id=s.session_id AND ar.student_id=?) as already_marked
+        FROM attendance_sessions s
+        JOIN subjects sub ON sub.id=s.subject_id
+        JOIN faculty f ON f.id=s.faculty_id
+        WHERE s.status='active'
+    """
+    params = [uid]
+    
+    if section:
+        q += " AND (sub.section IS NULL OR LOWER(sub.section)=LOWER(?))"
+        params.append(section)
+    if year:
+        q += " AND (sub.year IS NULL OR sub.year=?)"
+        params.append(year)
+        
+    q += " ORDER BY s.start_time DESC"
+    
+    rows = db.execute(q, params).fetchall()
     db.close()
-    sessions = [{'id':r['session_id'],'subject_name':r['subject_name'],
-                 'subject_code':r['subject_code'],'faculty_name':r['faculty_name'],
-                 'geo_fence_lat':r['geo_fence_lat'],'geo_fence_lng':r['geo_fence_lng'],
+    
+    sessions = [{'id':r['session_id'],
+                 'subject_name':r['subject_name'],
+                 'subject_code':r['subject_code'],
+                 'faculty_name':r['faculty_name'],
+                 'geo_fence_lat':r['geo_fence_lat'],
+                 'geo_fence_lng':r['geo_fence_lng'],
                  'geo_fence_radius':r['geo_fence_radius'],
-                 'start_time':r['start_time'],'date':r['date'],'status':r['status']} for r in rows]
+                 'start_time':r['start_time'],
+                 'date':r['date'],
+                 'status':r['status'],
+                 'already_marked': bool(r['already_marked'])} for r in rows]
     return jsonify(success=True, sessions=sessions)
 
 @app.route('/api/student/attendance', methods=['POST'])

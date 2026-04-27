@@ -39,11 +39,15 @@ function populateFacultyInfo() {
 // ── Navigation ─────────────────────────────────────────────────────────────────
 function showSection(id) {
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const sec = document.getElementById('sec-' + id);
-  if (sec) sec.classList.add('active');
-  const nav = document.getElementById('nav-' + id);
-  if (nav) nav.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  
+  document.getElementById(`sec-${id}`).classList.add('active');
+  document.getElementById(`nav-${id}`).classList.add('active');
+  
+  // Also close mobile sidebar if open
+  document.querySelector('.sidebar').classList.remove('mobile-open');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (overlay) overlay.classList.remove('active');
 
   // Lazy load section data
   if (id === 'overview')  refreshOverview();
@@ -51,6 +55,13 @@ function showSection(id) {
   if (id === 'start')     populateSubjectSelect();
   if (id === 'live')      { if (activeSession) loadLiveAttendance(); }
   if (id === 'reports')   loadReports();
+}
+
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar) sidebar.classList.toggle('mobile-open');
+  if (overlay) overlay.classList.toggle('active');
 }
 
 // ── Subjects ──────────────────────────────────────────────────────────────────
